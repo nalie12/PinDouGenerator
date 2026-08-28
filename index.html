@@ -63,8 +63,12 @@ button.on{background:var(--ink);color:#F5EFE6;border-color:var(--ink)}
 button.primary{background:var(--wine);color:#F8F4EC;border-color:var(--wine)}
 button.primary:hover{background:var(--wine-d);border-color:var(--wine-d);box-shadow:none}
 button:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.btnrow{display:flex;flex-wrap:wrap;gap:6px}
-.btnrow button{flex:1 1 auto;min-width:56px}
+.btnrow{display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.btnrow button{flex:1 1 100px;min-width:0;white-space:normal}
+#toolRow button{flex:1 1 120px}
+#historyRow{margin-top:6px}
+#historyRow button{flex:1 1 0;min-width:0}
+.mobile-actions{display:none}
 input[type=number]{
   width:64px;border:1px solid var(--line-strong);border-radius:var(--r);padding:6px 8px;font-size:13px;
   font-family:inherit;color:var(--ink);background:#FFFFFF;outline:none;
@@ -97,6 +101,9 @@ input[type=range]{accent-color:var(--wine);width:100%}
 .zoombar .zb-group button:hover{box-shadow:none;background:var(--sand-t)}
 .zoombar .zlabel{font-size:12px;color:var(--ink);min-width:46px;text-align:center;font-weight:700}
 .zoombar .tip{font-size:11px;color:#9A8A78;margin-left:auto}
+.mobile-actions{display:none;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.42);flex-wrap:wrap}
+.mobile-actions button{flex:1 1 88px;min-width:0}
+.mobile-actions .mobile-tool.on{background:var(--ink);color:#F5EFE6;border-color:var(--ink)}
 .viewport{flex:1;overflow:auto;display:flex;position:relative;min-height:0;
   background:repeating-conic-gradient(#F3EEE3 0% 25%,#EFE8DF 0% 50%) 0 0/28px 28px;cursor:default}
 .stage-wrap{margin:auto;padding:20px;display:grid;grid-template-columns:28px max-content;grid-template-rows:28px max-content;width:max-content}
@@ -149,6 +156,43 @@ input[type=range]{accent-color:var(--wine);width:100%}
   .center{min-height:70vh}
   .panel{max-height:none;overflow:visible}
 }
+@media (max-width:920px){
+  header{padding:12px 14px;gap:8px}
+  header h1{font-size:16px;letter-spacing:2px}
+  header .sub{white-space:normal;padding:4px 10px}
+  .app{padding:10px;gap:10px}
+  .center{order:-1;min-height:60vh}
+  .mobile-actions{display:flex}
+  .zoombar .tip{width:100%;margin-left:0}
+  .panel{padding:12px}
+  .btnrow button{flex-basis:calc(50% - 6px)}
+  .pal-toggle{flex-wrap:wrap}
+  .pal-toggle button{flex:1 1 120px}
+  .palette{grid-template-columns:repeat(auto-fill,minmax(52px,1fr))}
+  .stage-wrap{padding:12px}
+}
+@media (max-width:640px){
+  header{align-items:flex-start}
+  .logo{margin-top:4px}
+  header h1{font-size:15px;line-height:1.2}
+  header .sub{font-size:10px;letter-spacing:1px}
+  .app{padding:8px;gap:8px}
+  .center{min-height:58vh}
+  .zoombar{padding:8px 10px;gap:6px}
+  .zoombar button{padding-inline:8px}
+  .mobile-actions{padding:8px 10px}
+  .mobile-actions button{flex-basis:calc(50% - 3px);padding:9px 8px}
+  .panel{padding:10px}
+  .sec{margin-bottom:14px}
+  .sec h3{font-size:11px}
+  .field{flex-wrap:wrap;align-items:flex-start}
+  .field input[type=range]{min-width:0}
+  input[type=number]{width:56px}
+  .btnrow button{flex-basis:calc(50% - 3px)}
+  .palette{grid-template-columns:repeat(auto-fill,minmax(44px,1fr))}
+  .swatch{height:36px}
+  .legend-bar{padding:8px 10px}
+}
 </style>
 </head>
 <body>
@@ -177,7 +221,7 @@ input[type=range]{accent-color:var(--wine);width:100%}
         <button data-tool="picker" title="吸取画布上的颜色">取色器</button>
         <button data-tool="swap" title="点击画布上某颜色，全部换成当前颜色">一键换色</button>
       </div>
-      <div class="btnrow" style="margin-top:6px">
+      <div class="btnrow" id="historyRow" style="margin-top:6px">
         <button id="undoBtn" title="Ctrl+Z">撤销</button>
         <button id="redoBtn" title="Ctrl+Y">重做</button>
       </div>
@@ -261,6 +305,15 @@ input[type=range]{accent-color:var(--wine);width:100%}
       <button id="zoomFit">适应窗口</button>
       <button id="zoom100">1:1</button>
       <span class="tip">滚轮缩放 · 按住鼠标中键或拖动空白处平移画布</span>
+    </div>
+    <div class="mobile-actions" id="mobileActions">
+      <button class="mobile-tool" data-tool="brush" title="用当前颜色画豆子">画笔</button>
+      <button class="mobile-tool" data-tool="eraser" title="擦掉豆子">橡皮</button>
+      <button class="mobile-tool" data-tool="picker" title="吸取画布上的颜色">取色器</button>
+      <button id="mobileUndoBtn" title="撤销">撤销</button>
+      <button id="mobileRedoBtn" title="重做">重做</button>
+      <button id="mobileZoomOutBtn" title="缩小">缩小</button>
+      <button id="mobileZoomInBtn" title="放大">放大</button>
     </div>
     <div class="viewport" id="viewport">
       <div class="stage-wrap" id="stageWrap">
@@ -610,6 +663,9 @@ function setTool(t){
   $('toolRow').querySelectorAll('button').forEach(function(b){
     b.classList.toggle('on',b.dataset.tool===t);
   });
+  document.querySelectorAll('.mobile-tool').forEach(function(b){
+    b.classList.toggle('on',b.dataset.tool===t);
+  });
   gridCanvas.style.cursor = t==='picker'?'copy':(t==='swap'?'pointer':'crosshair');
 }
 gridCanvas.addEventListener('pointerdown',function(e){
@@ -725,8 +781,15 @@ $('palFull').addEventListener('click',function(){
 $('toolRow').querySelectorAll('button').forEach(function(b){
   b.addEventListener('click',function(){ setTool(b.dataset.tool); });
 });
+document.querySelectorAll('.mobile-tool').forEach(function(b){
+  b.addEventListener('click',function(){ setTool(b.dataset.tool); });
+});
 $('undoBtn').addEventListener('click',undo);
 $('redoBtn').addEventListener('click',redo);
+$('mobileUndoBtn').addEventListener('click',undo);
+$('mobileRedoBtn').addEventListener('click',redo);
+$('mobileZoomOutBtn').addEventListener('click',function(){ zoomStep(-1); });
+$('mobileZoomInBtn').addEventListener('click',function(){ zoomStep(1); });
 document.addEventListener('keydown',function(e){
   if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); }
   else if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){ e.preventDefault(); redo(); }
