@@ -3,1048 +3,276 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>nalie's拼豆图纸生成器</title>
-<!-- SECTION: styles -->
+<title>拼豆工坊 · 拼豆图纸生成器</title>
 <style>
 :root{
-  --paper:#EFE8DF; --panel:#F8F4EC;
-  --ink:#0F414A; --ink2:#5F7B83;
-  --sand:#D8BA98; --sand-t:#EADFCA;
-  --wine:#7F0303; --wine-d:#5C0202;
-  --blue:#96C0CE; --blue-t:#DFE9EC;
-  --line:rgba(15,65,74,.16); --line-strong:rgba(15,65,74,.38);
-  --r:2px;
+  --paper:#ffffff;
+  --ink:#000000;
+  --red:#ff6b6b;
+  --teal:#4ecdc4;
+  --yellow:#ffe66d;
+  --mint:#95e1d3;
+  --coral:#f38181;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;}
 body{
-  font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
-  background:var(--paper);
-  background-attachment:fixed; color:var(--ink); user-select:none;
-  display:flex; flex-direction:column; overflow:hidden; min-height:0;
+  font-family:"Arial Black","Microsoft YaHei","PingFang SC",sans-serif;
+  background:#ffffff;
+  color:#000;
+  overflow:hidden;
 }
-/* SECTION: scrollbar */
-::-webkit-scrollbar{width:10px;height:10px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--sand);border:3px solid var(--panel);border-radius:var(--r)}
-::-webkit-scrollbar-thumb:hover{background:var(--wine)}
-::-webkit-scrollbar-corner{background:transparent}
+button{font-family:inherit;cursor:pointer;}
+#landing{
+  display:flex;
+  height:100vh;
+  height:100dvh;
+  transition:opacity .5s ease;
+}
+#landing.leave{opacity:0;}
+.col-left{
+  width:44%;
+  min-width:320px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  text-align:left;
+  padding:48px 40px;
+  background:#ffe66d;
+  border-right:4px solid #000;
+  position:relative;
+}
+.col-left::after{
+  content:"";
+  position:absolute;right:18px;top:28px;
+  width:28px;height:28px;background:#ff6b6b;
+  border:4px solid #000;
+  transform:rotate(-2deg);
+  box-shadow:6px 6px 0 #000;
+}
+.hero-title{
+  font-weight:900;
+  text-transform:uppercase;
+  color:#000;
+  font-size:clamp(48px, 6.6vw, 96px);
+  letter-spacing:.04em;
+  line-height:.95;
+  transform:rotate(-2deg);
+}
+.hero-sub{
+  margin-top:22px;
+  font-family:Consolas,"Courier New",monospace;
+  font-size:14px;
+  letter-spacing:.18em;
+  font-weight:700;
+  background:#4ecdc4;
+  color:#000;
+  border:4px solid #000;
+  padding:8px 12px;
+  box-shadow:6px 6px 0 #000;
+  transform:rotate(1deg);
+}
+.left-badge{margin-top:36px;display:flex;gap:10px;}
+.left-badge i{
+  width:18px;height:18px;
+  border:4px solid #000;
+  box-shadow:4px 4px 0 #000;
+}
+.left-badge i:nth-child(1){background:#ff6b6b;transform:rotate(-2deg);}
+.left-badge i:nth-child(2){background:#4ecdc4;transform:rotate(1deg);}
+.left-badge i:nth-child(3){background:#95e1d3;transform:rotate(-1deg);}
+.col-right{
+  flex:1;
+  background:#ff6b6b;
+  display:flex;
+  flex-direction:column;
+  position:relative;
+}
+.wall{flex:1;position:relative;overflow:hidden;}
+.postcard{
+  position:absolute;
+  background:#fff;
+  padding:10px 10px 14px;
+  border:4px solid #000;
+  border-radius:0;
+  box-shadow:6px 6px 0 #000;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s cubic-bezier(.34,1.56,.64,1);
+}
+.postcard:nth-of-type(1){box-shadow:6px 6px 0 #4ecdc4;}
+.postcard:nth-of-type(2){box-shadow:6px 6px 0 #ffe66d;}
+.postcard:nth-of-type(3){box-shadow:6px 6px 0 #95e1d3;}
+.postcard:nth-of-type(4){box-shadow:6px 6px 0 #f38181;}
+.postcard:hover{
+  transform:rotate(2deg) scale(1.05) translateY(-8px) !important;
+  box-shadow:8px 8px 0 #000;
+  z-index:9;
+}
+.postcard:active{transform:scale(.95) translate(4px,4px) !important;box-shadow:none;}
+.postcard img{display:block;width:100%;height:100%;object-fit:cover;image-rendering:pixelated;}
+.postcard .num{
+  position:absolute;top:-12px;left:-8px;
+  background:#ffe66d;color:#000;
+  font-weight:900;font-size:12px;
+  padding:4px 8px;
+  border:4px solid #000;
+  box-shadow:4px 4px 0 #000;
+  transform:rotate(-2deg);
+}
+.postcard .cap{
+  margin-top:8px;
+  font-family:Consolas,"Courier New",monospace;
+  color:#000;font-size:12px;font-weight:700;
+}
+.card-ph{
+  display:none;width:100%;height:100%;
+  background:#95e1d3;color:#000;
+  align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;
+}
+.postcard.img-broken img{display:none;}
+.postcard.img-broken .card-ph{display:flex;}
+.ratio-34{aspect-ratio:3/4;}
+.ratio-11{aspect-ratio:1/1;}
+.enter-hint{
+  position:absolute;right:22px;bottom:22px;
+  padding:10px 14px;
+  background:#ffe66d;color:#000;
+  border:4px solid #000;
+  border-radius:0;
+  z-index:10;
+  box-shadow:6px 6px 0 #000;
+  transform:rotate(1deg);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s cubic-bezier(.34,1.56,.64,1);
+}
+.enter-hint .hint-text{display:flex;align-items:center;gap:8px;font-size:13px;}
+.enter-hint .chev{font-family:Consolas,"Courier New",monospace;}
+.enter-hint:hover{transform:rotate(-2deg) scale(1.05) translateY(-8px);box-shadow:none;}
+.enter-hint:active{transform:scale(.95) translate(4px,4px);box-shadow:none;}
+@media (max-width:880px){
+  #landing{flex-direction:column;}
+  .col-left{width:100%;min-width:0;height:32vh;padding:24px;border-right:none;border-bottom:4px solid #000;}
+  .hero-title{font-size:clamp(36px, 11vw, 56px);}
+  .left-badge{display:none;}
+  .wall{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:20px 20px 84px;align-content:start;}
+  .postcard{position:static !important;left:auto !important;top:auto !important;width:auto !important;}
+  .enter-hint{right:14px;bottom:16px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .postcard,.enter-hint,#landing{transition:none;}
+  .postcard:hover,.enter-hint:hover{transform:none !important;}
+}
 
-/* SECTION: header */
-header{
-  display:flex;align-items:center;gap:14px;padding:13px 22px;flex:none;
-  background:var(--panel);border-bottom:1px solid var(--ink);position:relative;
-}
-header::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:1px;background:var(--line-strong)}
-.logo{width:12px;height:12px;background:var(--wine);flex:none;outline:1px solid var(--wine);outline-offset:2px}
-header h1{font-size:18px;letter-spacing:4px;color:var(--ink);font-weight:700}
-header .sub{font-size:11px;color:var(--ink);padding:4px 12px;background:rgba(150,192,206,.18);border:1px solid rgba(150,192,206,.6);letter-spacing:1.5px}
-
-/* SECTION: layout */
-.app{flex:1;display:grid;grid-template-columns:260px minmax(0,1fr);gap:14px;padding:14px;min-height:0;overflow:hidden;transition:padding .2s ease,gap .2s ease}
-.panel{
-  background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--r);
-  padding:14px;overflow-y:auto;min-height:0;
-}
-.sec{margin-bottom:18px}
-.sec h3{font-size:12px;margin-bottom:9px;display:flex;align-items:center;gap:6px;color:var(--ink);letter-spacing:1px;border-bottom:1px solid var(--line);padding-bottom:6px;text-transform:uppercase}
-.sec h3::before{content:"";width:7px;height:7px;background:var(--wine);flex:none}
-.sec h3 .tag{font-size:10px;color:var(--ink2);font-weight:normal;text-transform:none;letter-spacing:0}
-
-/* SECTION: controls */
-button{font-family:inherit;border:1px solid var(--line-strong);cursor:pointer;color:var(--ink);background:#FFFFFF;border-radius:var(--r);padding:7px 10px;font-size:12px;transition:all .18s ease;line-height:1.2;letter-spacing:.5px}button:hover{background:var(--sand-t);border-color:var(--ink);box-shadow:none;transform:none}button:active{background:var(--sand)}button.on{background:var(--ink);color:#F5EFE6;border-color:var(--ink)}button.primary{background:var(--wine);color:#F8F4EC;border-color:var(--wine)}button.primary:hover{background:var(--wine-d);border-color:var(--wine-d);box-shadow:none}button:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}.icon-btn{width:34px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:1}.icon-btn .ico{font-size:16px;line-height:1;display:flex;align-items:center;justify-content:center}.icon-btn svg{width:24px;height:24px;display:block;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.btnrow{display:flex;flex-wrap:wrap;gap:6px;min-width:0}.btnrow button{flex:1 1 100px;min-width:0;white-space:normal}.tool-strip{display:flex;flex-direction:column;gap:6px;min-width:0}#toolRow{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:6px;padding-bottom:2px;-webkit-overflow-scrolling:touch}#toolRow button{flex:0 0 auto}#historyRow{margin-top:0}#historyRow button{flex:1 1 0;min-width:0}.mobile-actions{display:none}
-input[type=number]{
-  width:64px;border:1px solid var(--line-strong);border-radius:var(--r);padding:6px 8px;font-size:13px;
-  font-family:inherit;color:var(--ink);background:#FFFFFF;outline:none;
-}
-input[type=number]:focus{border-color:var(--wine)}
-input[type=range]{accent-color:var(--wine);width:100%}
-.note{font-size:11px;color:#7A6A54;background:var(--sand-t);border:1px solid rgba(216,186,152,.7);border-radius:var(--r);padding:7px 9px;margin-top:8px;line-height:1.6}
-.field{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);margin-bottom:6px}
-.seg{display:flex;background:#FFFFFF;border:1px solid var(--line-strong);border-radius:var(--r);padding:3px;gap:3px}
-.seg button{flex:1;border:none;background:transparent;padding:6px 4px;border-radius:var(--r)}
-.seg button.on{background:var(--ink);color:#F5EFE6;box-shadow:none}
-.seg button:hover{transform:none;box-shadow:none}
-.switch{display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:6px 2px}
-.switch .dot{width:36px;height:20px;border-radius:2px;background:#D9CFBE;border:1px solid var(--line-strong);position:relative;transition:.2s;flex:none;cursor:pointer}
-.switch .dot::after{content:"";position:absolute;width:14px;height:14px;border-radius:1px;background:#FFFFFF;border:1px solid var(--line-strong);top:2px;left:2px;transition:.2s}
-.switch input{display:none}
-.switch input:checked + .dot{background:var(--ink);border-color:var(--ink)}
-.switch input:checked + .dot::after{left:18px;border:none}
-.cur-color{display:flex;align-items:center;gap:10px;background:#FFFFFF;border:1px solid var(--line-strong);border-radius:var(--r);padding:8px 10px;margin-bottom:8px}
-.cur-chip{width:34px;height:34px;border-radius:var(--r);border:1px solid var(--line-strong);flex:none}
-.cur-color .code{font-size:15px;font-weight:700;color:var(--ink)}
-.cur-color .hint{font-size:10px;color:var(--ink2)}
-.val-badge{font-size:11px;background:var(--sand-t);color:#6B5232;border:1px solid rgba(216,186,152,.7);border-radius:var(--r);padding:2px 8px;font-weight:700}
-
-/* SECTION: center */
-.center{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden}
-.zoombar{flex:none;display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-.zoombar .zb-group{display:flex;align-items:center;gap:4px;background:#FFFFFF;border:1px solid var(--line-strong);border-radius:var(--r);padding:3px}
-.zoombar .zb-group button{border:none;background:transparent;border-radius:var(--r);padding:4px 10px;font-size:13px;min-width:34px}
-.zoombar .zb-group button:hover{box-shadow:none;background:var(--sand-t)}
-.zoombar .zlabel{font-size:12px;color:var(--ink);min-width:46px;text-align:center;font-weight:700}
-.zoombar .tip{font-size:11px;color:#9A8A78;margin-left:auto}
-.mobile-actions{display:none;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.42);flex-wrap:wrap}
-.mobile-actions button{flex:1 1 88px;min-width:0}
-.mobile-actions .mobile-tool.on{background:var(--ink);color:#F5EFE6;border-color:var(--ink)}
-.viewport{flex:1;overflow:auto;display:flex;position:relative;min-height:0;
-  background:repeating-conic-gradient(#F3EEE3 0% 25%,#EFE8DF 0% 50%) 0 0/28px 28px;cursor:default;
-  overscroll-behavior:none;touch-action:none}
-.stage-wrap{margin:auto;padding:20px;display:grid;grid-template-columns:28px max-content;grid-template-rows:28px max-content;width:max-content}
-.stage-wrap.no-rulers{grid-template-columns:0 max-content;grid-template-rows:0 max-content}
-.stage-wrap.no-rulers .ruler-corner,.stage-wrap.no-rulers .ruler-top,.stage-wrap.no-rulers .ruler-left{display:none}
-.ruler-corner{grid-area:1/1}
-.ruler-top{grid-area:1/2}
-.ruler-left{grid-area:2/1}
-.stage{grid-area:2/2;position:relative;box-shadow:0 2px 14px rgba(15,65,74,.14);border-radius:var(--r);overflow:hidden;background:#fff;border:1px solid var(--line-strong)}
-.stage canvas{position:absolute;left:0;top:0;display:block}
-#gridCanvas{z-index:2}
-#refCanvas{z-index:1}
-
-.palette-pop{
-  position:fixed;z-index:140;display:flex;flex-direction:column;gap:6px;
-  width:268px;max-height:60vh;padding:8px;
-  background:var(--panel);border:1px solid var(--line-strong);border-radius:6px;
-  box-shadow:0 10px 28px rgba(15,65,74,.22);
-  visibility:hidden;opacity:0;pointer-events:none;
-  transform:translateY(-4px);
-  transition:opacity .2s ease,transform .2s ease,visibility .2s ease;
-}
-.palette-pop.open{visibility:visible;opacity:1;pointer-events:auto;transform:none}
-.palette-pop-head{display:flex;flex-direction:column;gap:6px}
-.palette-pop-head .pal-toggle{display:flex;gap:4px}
-.palette-pop-head .pal-toggle button{flex:1;padding:4px 6px;font-size:11px}
-.palette-pop-body{
-  display:grid;grid-template-columns:repeat(12,16px);gap:2px;
-  overflow:auto;padding:1px;min-height:0;
-}
-.palette-pop .swatch{
-  width:16px;height:16px;padding:0;border-radius:2px;position:relative;
-  overflow:hidden;cursor:pointer;border:1px solid rgba(15,65,74,.22);
-  display:flex;align-items:flex-end;justify-content:center;
-}
-.palette-pop .swatch:hover{transform:scale(1.18);z-index:2}
-.palette-pop .swatch.sel{outline:2px solid var(--wine);outline-offset:0;z-index:2}
-.palette-pop .swatch .code{
-  position:static;width:100%;font-size:6px;line-height:8px;font-weight:700;
-  text-align:center;background:rgba(255,255,255,.7);pointer-events:none;
-}
-.palette-pop-footer{
-  font-size:11px;color:var(--ink2);line-height:1.2;
-  padding:3px 6px;background:#fff;border:1px solid var(--line-strong);border-radius:var(--r);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-
-/* SECTION: toast */
-#toast{
-  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
-  background:rgba(15,65,74,.95);color:#F5EFE6;font-size:13px;padding:10px 22px;border-radius:var(--r);
-  opacity:0;pointer-events:none;transition:.25s;z-index:99;border:1px solid rgba(150,192,206,.5);letter-spacing:1px;
-}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-@media (max-width:1024px) and (orientation:landscape){
-  .app{grid-template-columns:240px minmax(0,1fr);padding:10px;gap:10px}
-}
-@media (max-width:767px), (min-width:768px) and (max-width:1024px) and (orientation:portrait){
-  html,body{overflow:hidden;height:100%;height:100dvh}
-  header{flex-shrink:0;padding:10px 14px;gap:8px}
-  header h1{font-size:16px;letter-spacing:2px}
-  .app{
-    display:flex;flex-direction:column;gap:0;padding:0;
-    min-height:0;height:100%;overflow:hidden;
-  }
-  .center{
-    order:-1;flex:none;flex-shrink:0;height:55dvh;
-    min-height:0;overflow:hidden;border-radius:0;border:none;
-    border-bottom:1px solid var(--line-strong);position:relative;
-  }
-  .mobile-actions{display:none!important}
-  .zoombar{
-    position:absolute;right:8px;bottom:8px;z-index:6;
-    display:flex;flex-direction:column;align-items:stretch;gap:4px;
-    width:auto;max-width:calc(100% - 16px);padding:6px;
-    background:rgba(248,244,236,.92);border:1px solid var(--line-strong);
-    border-radius:8px;box-shadow:0 4px 14px rgba(15,65,74,.12);
-  }
-  .zoombar .tip{display:none}
-  .zoombar .zb-group{justify-content:center}
-  .zoombar button{font-size:14px;min-height:36px;padding-inline:10px}
-  .viewport{flex:1;min-height:0;overflow:auto;overscroll-behavior:none;touch-action:none}
-  .stage-wrap{padding:10px}
-  #leftPanel{
-    flex:1;min-height:0;width:100%;max-width:none;
-    overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
-    overscroll-behavior:contain;touch-action:pan-y;border-radius:0;border:none;padding:12px 12px 20px;
-  }
-  #leftPanel::-webkit-scrollbar{width:6px}
-  #leftPanel::-webkit-scrollbar-thumb{border-width:1px}
-  .tool-strip{flex-direction:row;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-  #toolRow,#historyRow{
-    display:flex;flex-wrap:nowrap;overflow:visible;flex:1 1 auto;gap:6px;
-  }
-  #toolRow button,#historyRow button,.icon-btn{
-    width:44px;height:44px;min-width:44px;flex:1 1 44px;
-  }
-  .btnrow button{flex-basis:calc(33.33% - 6px);font-size:14px;min-height:40px}
-  #presetRow{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-  #presetRow button{flex:none;width:100%}
-  .field{flex-wrap:wrap;gap:8px;font-size:14px}
-  .field input[type=range]{min-width:0;flex:1}
-  input[type=number]{width:72px;font-size:16px;padding:8px}
-  button{font-size:14px}
-  .seg button{font-size:14px;padding:8px 6px}
-  .switch{font-size:14px}
-  .note{font-size:13px}
-  .palette-pop{
-    left:0!important;right:0!important;top:auto!important;bottom:0!important;
-    width:100%!important;max-height:70vh;max-width:none;
-    border-radius:12px 12px 0 0;padding:12px;
-    transform:translateY(110%);opacity:1;visibility:visible;pointer-events:none;
-  }
-  .palette-pop.open{transform:translateY(0);pointer-events:auto}
-  .palette-pop-body{grid-template-columns:repeat(auto-fill,minmax(28px,1fr));gap:4px}
-  .palette-pop .swatch{width:100%;height:28px}
-  .palette-pop .swatch .code{font-size:8px;line-height:12px}
-}
+/* CEL SHADING OVERRIDE */
+:root{--paper:#fafaf5;--ink:#1a1a2e;--red:#e63946;--blue:#4ea8de;--green:#2ecc71;--yellow:#f1c40f}
+body{font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;background:var(--paper);color:var(--ink)}
+.col-left{background:#fafaf5;border-right:3px solid var(--ink);position:relative}
+.col-left::before{background:var(--red);width:3px}
+.col-left::after{background:var(--blue);border:3px solid var(--ink);border-radius:0;width:22px;height:22px;box-shadow:3px 3px 0 var(--ink)}
+.hero-title{font-family:"Arial Black","Microsoft YaHei",sans-serif;color:var(--ink);font-weight:900;letter-spacing:.02em;text-transform:uppercase;text-decoration:none;text-shadow:3px 3px 0 var(--red);transform:rotate(-1deg)}
+.hero-sub{font-family:"Segoe UI",sans-serif;background:var(--blue);border:3px solid var(--ink);color:var(--ink);box-shadow:3px 3px 0 var(--ink);font-weight:900;letter-spacing:.18em;transform:rotate(1deg)}
+.left-badge i{border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.left-badge i:nth-child(1){background:var(--red)}.left-badge i:nth-child(2){background:var(--blue)}.left-badge i:nth-child(3){background:var(--green)}
+.col-right{background:var(--red);box-shadow:none;border-left:3px solid var(--ink)}
+.postcard{background:#fff;border:3px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 var(--ink);transition:transform .075s linear,box-shadow .075s linear}
+.postcard:nth-of-type(1){box-shadow:4px 4px 0 var(--blue)}.postcard:nth-of-type(2){box-shadow:4px 4px 0 var(--yellow)}.postcard:nth-of-type(3){box-shadow:4px 4px 0 var(--green)}.postcard:nth-of-type(4){box-shadow:4px 4px 0 var(--blue)}
+.postcard:hover{transform:translate(2px,2px) scale(1.03)!important;box-shadow:1px 1px 0 var(--ink)}
+.postcard .num{background:var(--yellow);color:var(--ink);border:3px solid var(--ink);box-shadow:3px 3px 0 var(--ink)}
+.postcard img{border:3px solid var(--ink)}
+.postcard .cap{font-family:"Segoe UI",sans-serif;font-weight:900;color:var(--ink)}
+.enter-hint{background:var(--blue);color:#fff;border:3px solid var(--ink);border-radius:0;box-shadow:4px 4px 0 var(--ink);transform:rotate(1deg);transition:all .075s linear;font-weight:900}
+.enter-hint:hover{transform:translate(2px,2px) scale(1.03)!important;box-shadow:1px 1px 0 var(--ink)}
+.enter-hint:active{transform:translate(4px,4px) scaleX(1.1) scaleY(.9);box-shadow:none}
+@media (max-width:880px){.col-left{border-right:0;border-bottom:3px solid var(--ink)}.col-right{border-left:0}}
 </style>
 </head>
 <body>
-<!-- SECTION: header -->
-<header>
-  <span class="logo"></span>
-  <h1>nalie's图纸工坊</h1>
-
-</header>
-
-<div class="app">
-  <!-- SECTION: left-panel -->
-  <aside class="panel" id="leftPanel">
-    <div class="sec">
-      <h3>当前颜色 & 工具</h3>
-      <div class="cur-color">
-        <div class="cur-chip" id="curChip"></div>
-        <div>
-          <div class="code" id="curCode">--</div>
-          <div class="hint">点击调色盘按钮选择 MARD 色号</div>
-        </div>
-      </div>
-      <div class="tool-strip">
-      <div class="btnrow" id="toolRow">
-        <button data-tool="brush" class="icon-btn on" title="画笔"><span class="ico">✎</span></button>
-        <button id="openPaletteBtn" class="icon-btn" title="调色盘"><span class="ico">🎨</span></button>
-        <button data-tool="eraser" class="icon-btn" title="橡皮"><span class="ico">⌫</span></button>
-      <button data-tool="picker" class="icon-btn" title="取色器"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.8 3.6c1.3-1.3 3.3-1.3 4.6 0s1.3 3.3 0 4.6l-2.1 2.1-4.6-4.6z"/><path d="M14.8 8.8L6.4 17.2"/><path d="M5.2 16.6l2.2 2.2-3 1.4z"/><path d="M8.2 19.4h2.6v2.2"/></svg></span></button>
-      <button data-tool="swap" class="icon-btn" title="一键换色"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19L14.2 9.8"/><path d="M13.1 8.7l2.2 2.2 1.7-1.7-2.2-2.2z"/><path d="M17.6 4.2l.5 1.6 1.6.5-1.6.5-.5 1.6-.5-1.6-1.6-.5 1.6-.5z"/><path d="M20.4 8.6l.3.9.9.3-.9.3-.3.9-.3-.9-.9-.3.9-.3z"/></svg></span></button>
-      </div>
-      <div class="btnrow" id="historyRow">
-        <button id="undoBtn" class="icon-btn" title="撤销"><span class="ico">↶</span></button>
-        <button id="redoBtn" class="icon-btn" title="重做"><span class="ico">↷</span></button>
-      </div>
-      </div>
+<div id="landing">
+  <section class="col-left">
+    <h1 class="hero-title">拼豆工坊</h1>
+    <div class="hero-sub">PERLER BEAD PATTERN STUDIO</div>
+    <div class="left-badge" aria-hidden="true"><i></i><i></i><i></i></div>
+  </section>
+  <section class="col-right">
+    <div class="wall" id="wall">
+      <figure class="postcard ratio-34" style="width:34%;">
+        <span class="num">01</span>
+        <img alt="六件拼豆作品合集" src="assets/beads-set.jpg">
+        <div class="card-ph">作品图</div>
+      </figure>
+      <figure class="postcard ratio-11" style="width:26%;">
+        <span class="num">02</span>
+        <img alt="黑白像素风格的嘴唇拼豆作品" src="assets/beads-lips.jpg">
+        <div class="card-ph">作品图</div>
+      </figure>
+      <figure class="postcard ratio-34" style="width:36%;">
+        <span class="num">03</span>
+        <img alt="圆形构图的彩色港口小镇拼豆作品" src="assets/beads-harbor.jpg">
+        <div class="card-ph">作品图</div>
+      </figure>
+      <figure class="postcard ratio-11" style="width:30%;">
+        <span class="num">04</span>
+        <img alt="红帽人像拼豆作品" src="assets/beads-hood.jpg">
+        <div class="card-ph">作品图</div>
+      </figure>
     </div>
-
-    <div class="sec">
-      <h3>画布尺寸 <span class="tag">单元格 16px</span></h3>
-      <div class="field">
-        宽 <input type="number" id="sizeW" min="4" max="100" value="52"> 格
-        高 <input type="number" id="sizeH" min="4" max="100" value="52"> 格
-        <button id="applySize" style="flex:none">应用</button>
-      </div>
-      <div class="btnrow" id="presetRow">
-        <button data-size="32">32</button>
-        <button data-size="40">40</button>
-        <button data-size="48">48</button>
-        <button data-size="52" class="on">52</button>
-        <button data-size="78">78</button>
-        <button data-size="104">104</button>
-      </div>
-      <div class="note">范围 4~100 格，应用新尺寸会清空画布生成空白图纸（可撤销）。</div>
-    </div>
-
-    <div class="sec">
-      <h3>预览选项</h3>
-      <div class="seg" id="modeSeg">
-        <button data-mode="block" class="on">色块图纸</button>
-        <button data-mode="bead">仿真圆豆</button>
-      </div>
-      <div style="height:8px"></div>
-      <label class="switch">网格线 <span><input type="checkbox" id="tgGrid" checked><span class="dot"></span></span></label>
-      <label class="switch">坐标标尺 <span><input type="checkbox" id="tgRuler" checked><span class="dot"></span></span></label>
-      <label class="switch">色块内显示色号 <span><input type="checkbox" id="tgCodes"><span class="dot"></span></span></label>
-    </div>
-
-    <div class="sec">
-      <h3>图案变换</h3>
-      <div class="btnrow">
-        <button id="flipH">水平镜像</button>
-        <button id="flipV">垂直镜像</button>
-        <button id="rot90">旋转 90°</button>
-      </div>
-    </div>
-
-    <div class="sec">
-      <h3>参考底图</h3>
-      <div class="btnrow">
-        <button id="refUploadBtn">上传底图</button>
-        <button id="refClearBtn">移除</button>
-      </div>
-      <input type="file" id="refFile" accept="image/*" hidden>
-      <div class="field" style="margin-top:8px">透明度 <input type="range" id="refOpacity" min="0" max="100" value="50"> <span class="val-badge" id="refOpVal">50%</span></div>
-      <div class="field" id="refName" style="color:#A99B87">未上传底图</div>
-    </div>
-
-    <div class="sec">
-      <h3>图片转图纸</h3>
-      <div class="field">最大用色数 <input type="range" id="maxColors" min="2" max="32" value="16"> <span class="val-badge" id="maxColorsVal">16</span></div>
-      <button class="primary" id="convertBtn" data-primary-action style="width:100%">选择图片一键转图纸</button>
-      <input type="file" id="convertFile" accept="image/*" hidden>
-      <div class="note"> 按MARD色卡匹配颜色 </div>
-    </div>
-
-    <div class="sec">
-      <h3>导出</h3>
-      <div class="btnrow">
-        <button id="exportPng" data-primary-action>导出图纸 PNG</button>
-        <button id="exportTxt">导出用料清单</button>
-      </div>
-
-    </div>
-  </aside>
-
-  <!-- SECTION: center -->
-  <main class="center">
-    <div class="zoombar">
-      <div class="zb-group">
-        <button id="zoomOut" title="缩小">−</button>
-        <span class="zlabel" id="zoomLabel">100%</span>
-        <button id="zoomIn" title="放大">＋</button>
-      </div>
-      <button id="zoomFit">适应窗口</button>
-      <button id="zoom100">1:1</button>
-      <span class="tip">滚轮缩放 · 按住鼠标中键或拖动空白处平移画布</span>
-    </div>
-    <div class="mobile-actions" id="mobileActions">
-      <button class="mobile-tool icon-btn" data-tool="brush" title="画笔"><span class="ico">✎</span></button>
-      <button id="mobileOpenPaletteBtn" class="icon-btn" title="调色盘"><span class="ico">🎨</span></button>
-      <button class="mobile-tool icon-btn" data-tool="eraser" title="橡皮"><span class="ico">⌫</span></button>
-      <button class="mobile-tool icon-btn" data-tool="picker" title="取色器"><span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.8 3.6c1.3-1.3 3.3-1.3 4.6 0s1.3 3.3 0 4.6l-2.1 2.1-4.6-4.6z"/><path d="M14.8 8.8L6.4 17.2"/><path d="M5.2 16.6l2.2 2.2-3 1.4z"/><path d="M8.2 19.4h2.6v2.2"/></svg></span></button>
-      <button id="mobileUndoBtn" class="icon-btn" title="撤销"><span class="ico">↶</span></button>
-      <button id="mobileRedoBtn" class="icon-btn" title="重做"><span class="ico">↷</span></button>
-      <button id="mobileZoomOutBtn" class="icon-btn" title="缩小"><span class="ico">−</span></button>
-      <button id="mobileZoomInBtn" class="icon-btn" title="放大"><span class="ico">＋</span></button>
-    </div>
-    <div class="viewport" id="viewport">
-      <div class="stage-wrap" id="stageWrap">
-        <div class="ruler-corner"></div>
-        <canvas class="ruler-top" id="rulerTop"></canvas>
-        <canvas class="ruler-left" id="rulerLeft"></canvas>
-        <div class="stage" id="stage">
-          <canvas id="refCanvas"></canvas>
-          <canvas id="gridCanvas"></canvas>
-        </div>
-      </div>
-    </div>
-  </main>
+    <button class="enter-hint" id="enterHint" aria-label="进入生成器">
+      <span class="hint-text">START STUDIO</span>
+    </button>
+  </section>
 </div>
-
-<div class="palette-pop" id="paletteDrawer">
-  <div class="palette-pop-head">
-    <div class="pal-toggle">
-      <button id="palStd" class="on">常规 221 色</button>
-      <button id="palFull">扩展全 291 色</button>
-    </div>
-  </div>
-  <div class="palette-pop-body" id="paletteBody"></div>
-  <div class="palette-pop-footer" id="paletteFooter"><span id="paletteSelCode">--</span>　<span id="paletteSelHex">--</span></div>
-</div>
-<div id="toast"></div>
-
-<!-- SECTION: palette-data -->
-<script src="assets/mard-palette.js"></script>
-<!-- SECTION: app-script -->
 <script>
-(function(){
-"use strict";
-/* SECTION: state */
-var PALETTE = window.MARD_COLORS;           // [{c:色号, h:HEX}]
-var STD_COUNT = 221;                        // 前 221 色为常规色板
-var BASE_CELL = 16;                         // 单元格固定 16px
-var MAX_HISTORY = 50;
-var LEVELS = [0.25,0.4,0.5,0.7,1,1.5,2,3,4];
-
-var W=52, H=52;
-var grid = new Int16Array(W*H).fill(-1);    // -1 = 空格子
-var current = 135;                          // 默认选中色在色板中的索引（稍后校正为 F13）
-var tool = 'brush';
-var viewMode='block', showGrid=true, showRuler=true, showCodes=false;
-var zoom = 1;
-var undoStack=[], redoStack=[];
-var fullPalette=false;
-var refImg=null, refOpacity=0.5;
-var lastCell=null, drawing=false, panning=false;
-
-function findIdx(code){ for(var i=0;i<PALETTE.length;i++){ if(PALETTE[i].c===code) return i; } return 0; }
-current = findIdx('F13');
-
-/* SECTION: dom */
-var $ = function(id){ return document.getElementById(id); };
-var viewport=$('viewport'), stageWrap=$('stageWrap'), stage=$('stage');
-var gridCanvas=$('gridCanvas'), refCanvas=$('refCanvas');
-var rulerTop=$('rulerTop'), rulerLeft=$('rulerLeft');
-var gctx=gridCanvas.getContext('2d'), rctx=refCanvas.getContext('2d');
-var dpr = Math.max(1, window.devicePixelRatio||1);
-var paletteDrawer=$('paletteDrawer');
-
-function toast(msg){
-  var t=$('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(t._tm); t._tm=setTimeout(function(){ t.classList.remove('show'); },1800);
-}
-function hexRgb(hex){
-  return [parseInt(hex.slice(1,3),16),parseInt(hex.slice(3,5),16),parseInt(hex.slice(5,7),16)];
-}
-function textColor(hex){
-  var rgb=hexRgb(hex);
-  return (rgb[0]*299+rgb[1]*587+rgb[2]*114)/1000>=150 ? '#0F414A' : '#F5EFE6';
-}
-function cellPx(){ return BASE_CELL*zoom; }
-function codeFont(size){
-  return '700 '+size+'px "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif';
-}
-function drawCodeLabel(ctx, code, cx, cy, cell, hex){
-  var maxW=cell*0.88;
-  var size=Math.max(10, Math.floor(cell*(String(code).length>3?0.32:0.4)));
-  ctx.textAlign='center';
-  ctx.textBaseline='middle';
-  ctx.font=codeFont(size);
-  while(size>10 && ctx.measureText(code).width>maxW){
-    size--;
-    ctx.font=codeFont(size);
-  }
-  var fill=textColor(hex);
-  ctx.lineJoin='round';
-  ctx.miterLimit=2;
-  ctx.lineWidth=Math.max(2, size*0.16);
-  ctx.strokeStyle=fill==='#0F414A'?'rgba(255,255,255,.86)':'rgba(12,20,24,.55)';
-  ctx.strokeText(code, cx, cy);
-  ctx.fillStyle=fill;
-  ctx.fillText(code, cx, cy);
-}
-function exportCellSize(){
-  var preferred=96;
-  var maxSide=12288;
-  var c=Math.min(preferred, Math.floor(maxSide/Math.max(W,H,1)));
-  return Math.max(48, c);
-}
-
-/* SECTION: history */
-function snapshot(){ return {W:W,H:H,arr:grid.slice()}; }
-function pushUndo(){
-  undoStack.push(snapshot());
-  if(undoStack.length>MAX_HISTORY) undoStack.shift();
-  redoStack.length=0;
-  updateHistoryBtns();
-}
-function applySnap(s){
-  W=s.W; H=s.H; grid=s.arr;
-  $('sizeW').value=W; $('sizeH').value=H;
-  syncPresetBtns();
-  renderAll();
-}
-function undo(){
-  if(!undoStack.length){ toast('没有可撤销的操作'); return; }
-  redoStack.push(snapshot());
-  applySnap(undoStack.pop());
-  updateHistoryBtns();
-}
-function redo(){
-  if(!redoStack.length){ toast('没有可重做的操作'); return; }
-  undoStack.push(snapshot());
-  applySnap(redoStack.pop());
-  updateHistoryBtns();
-}
-function updateHistoryBtns(){
-  $('undoBtn').disabled=!undoStack.length;
-  $('redoBtn').disabled=!redoStack.length;
-}
-
-/* SECTION: canvas-render */
-function sizeCanvas(cv,ctx,w,h){
-  cv.style.width=w+'px'; cv.style.height=h+'px';
-  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-}
-function drawRef(){
-  var c=cellPx(), dw=W*c, dh=H*c;
-  sizeCanvas(refCanvas,rctx,dw,dh);
-  rctx.clearRect(0,0,dw,dh);
-  if(!refImg) return;
-  var s=Math.max(dw/refImg.width, dh/refImg.height);
-  var sw=dw/s, sh=dh/s, sx=(refImg.width-sw)/2, sy=(refImg.height-sh)/2;
-  rctx.globalAlpha=refOpacity;
-  rctx.drawImage(refImg,sx,sy,sw,sh,0,0,dw,dh);
-  rctx.globalAlpha=1;
-}
-function drawBead(ctx,cx,cy,r,hex){
-  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle=hex; ctx.fill();
-  ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.clip();
-  ctx.beginPath(); ctx.arc(cx-r*0.35,cy-r*0.35,r*0.55,0,Math.PI*2);
-  ctx.fillStyle='rgba(255,255,255,.34)'; ctx.fill();
-  ctx.beginPath(); ctx.arc(cx,cy+r*0.75,r*0.8,0,Math.PI*2);
-  ctx.fillStyle='rgba(0,0,0,.10)'; ctx.fill();
-  ctx.restore();
-  ctx.beginPath(); ctx.arc(cx,cy,r*0.26,0,Math.PI*2);
-  ctx.fillStyle='rgba(0,0,0,.16)'; ctx.fill();
-}
-function drawGrid(){
-  var c=cellPx(), w=W*c, h=H*c, i,x,y,v,hex;
-  sizeCanvas(gridCanvas,gctx,w,h);
-  gctx.clearRect(0,0,w,h);
-  if(viewMode==='block'){
-    for(i=0;i<grid.length;i++){
-      v=grid[i]; if(v<0) continue;
-      x=(i%W)*c; y=Math.floor(i/W)*c;
-      gctx.fillStyle=PALETTE[v].h;
-      gctx.fillRect(x,y,c,c);
-    }
-  }else{
-    var r=c*0.44;
-    for(i=0;i<grid.length;i++){
-      v=grid[i]; if(v<0) continue;
-      x=(i%W)*c+c/2; y=Math.floor(i/W)*c+c/2;
-      drawBead(gctx,x,y,r,PALETTE[v].h);
-    }
-  }
-  if(showGrid){
-    gctx.lineWidth=1; gctx.strokeStyle='rgba(15,65,74,.14)';
-    gctx.beginPath();
-    for(i=1;i<W;i++){ if(i%5===0) continue; x=i*c; gctx.moveTo(x,0); gctx.lineTo(x,h); }
-    for(i=1;i<H;i++){ if(i%5===0) continue; y=i*c; gctx.moveTo(0,y); gctx.lineTo(w,y); }
-    gctx.stroke();
-    gctx.lineWidth=2; gctx.strokeStyle='rgba(15,65,74,.42)';
-    gctx.beginPath();
-    for(i=5;i<W;i+=5){ x=i*c; gctx.moveTo(x,0); gctx.lineTo(x,h); }
-    for(i=5;i<H;i+=5){ y=i*c; gctx.moveTo(0,y); gctx.lineTo(w,y); }
-    gctx.stroke();
-    gctx.lineWidth=2.5; gctx.strokeStyle='rgba(15,65,74,.55)';
-    gctx.strokeRect(1,1,w-2,h-2);
-  }
-  if(showCodes && c>=11){
-    for(i=0;i<grid.length;i++){
-      v=grid[i]; if(v<0) continue;
-      hex=PALETTE[v].h;
-      drawCodeLabel(gctx, PALETTE[v].c, (i%W)*c+c/2, Math.floor(i/W)*c+c/2, c, hex);
-    }
-  }
-}
-
-/* SECTION: rulers */
-function drawRulers(){
-  var c=cellPx(), rw=Math.max(0,W*c), rh=Math.max(0,H*c), i,p;
-  stageWrap.classList.toggle('no-rulers',!showRuler);
-  if(!showRuler) return;
-  sizeCanvas(rulerTop,rulerTop.getContext('2d'),rw,28);
-  sizeCanvas(rulerLeft,rulerLeft.getContext('2d'),28,rh);
-  var tc=rulerTop.getContext('2d'), lc=rulerLeft.getContext('2d');
-  tc.setTransform(dpr,0,0,dpr,0,0); lc.setTransform(dpr,0,0,dpr,0,0);
-  tc.clearRect(0,0,rw,28); lc.clearRect(0,0,28,rh);
-  tc.fillStyle='rgba(255,255,255,.82)'; tc.fillRect(0,0,rw,28);
-  lc.fillStyle='rgba(255,255,255,.82)'; lc.fillRect(0,0,28,rh);
-  tc.font='700 9px sans-serif'; lc.font='700 9px sans-serif';
-  for(i=0;i<=W;i++){
-    p=i*c;
-    var major=(i%5===0);
-    tc.strokeStyle=major?'rgba(15,65,74,.75)':'rgba(15,65,74,.25)';
-    tc.lineWidth=major?2:1;
-    tc.beginPath(); tc.moveTo(p,28); tc.lineTo(p,major?6:18); tc.stroke();
-    if(major){ tc.fillStyle='rgba(15,65,74,.8)'; tc.textAlign='left'; tc.textBaseline='top'; tc.fillText(String(i),p+3,2); }
-  }
-  for(i=0;i<=H;i++){
-    p=i*c;
-    var major2=(i%5===0);
-    lc.strokeStyle=major2?'rgba(15,65,74,.75)':'rgba(15,65,74,.25)';
-    lc.lineWidth=major2?2:1;
-    lc.beginPath(); lc.moveTo(28,p); lc.lineTo(major2?6:18,p); lc.stroke();
-    if(major2){
-      lc.save(); lc.translate(2,p+3); lc.rotate(Math.PI/2);
-      lc.fillStyle='rgba(15,65,74,.8)'; lc.textAlign='left'; lc.textBaseline='top';
-      lc.fillText(String(i),0,0); lc.restore();
-    }
-  }
-}
-
-/* SECTION: stats-legend */
-function computeCounts(){
-  var map=new Map(), i,v;
-  for(i=0;i<grid.length;i++){ v=grid[i]; if(v>=0) map.set(v,(map.get(v)||0)+1); }
-  return map;
-}
-function renderStats(){ /* 用量统计已从界面移除，导出清单仍用 computeCounts */ }
-
-/* SECTION: palette-panel */
-function buildPalette(){
-  var box=$('paletteBody'); box.innerHTML='';
-  var list=fullPalette?PALETTE:PALETTE.slice(0,STD_COUNT);
-  list.forEach(function(item,idx){
-    var d=document.createElement('button');
-    d.type='button';
-    d.className='swatch'+(idx===current?' sel':'');
-    d.style.background=item.h;
-    d.title=item.c+' '+item.h;
-    var s=document.createElement('span'); s.className='code'; s.textContent=item.c;
-    s.style.color=textColor(item.h);
-    d.appendChild(s);
-    d.addEventListener('click',function(e){
-      e.stopPropagation();
-      current=idx;
-      if(tool==='eraser') setTool('brush');
-      buildPalette(); renderCur();
-      togglePalette(false);
-    });
-    box.appendChild(d);
-  });
-  updatePaletteFooter();
-}
-function updatePaletteFooter(){
-  $('paletteSelCode').textContent=PALETTE[current].c;
-  $('paletteSelHex').textContent=PALETTE[current].h;
-}
-function renderCur(){
-  $('curChip').style.background=PALETTE[current].h;
-  $('curCode').textContent=PALETTE[current].c;
-  updatePaletteFooter();
-}
-function isCompactLayout(){
-  var w=window.innerWidth, h=window.innerHeight;
-  return w<=767 || (w>=768 && w<=1024 && h>=w);
-}
-function paletteAnchor(){
-  return $('openPaletteBtn');
-}
-function positionPalette(){
-  var pop=paletteDrawer;
-  if(isCompactLayout()){
-    pop.style.left='0px';
-    pop.style.right='0px';
-    pop.style.top='auto';
-    pop.style.bottom='0px';
-    pop.style.width='100%';
-    return;
-  }
-  var btn=paletteAnchor(); if(!btn) return;
-  var r=btn.getBoundingClientRect();
-  var w=pop.offsetWidth||268, h=pop.offsetHeight||200;
-  var left=r.left, top=r.bottom+4;
-  if(left+w>window.innerWidth-8) left=Math.max(8, window.innerWidth-w-8);
-  if(top+h>window.innerHeight-8) top=Math.max(8, r.top-h-4);
-  pop.style.right='auto';
-  pop.style.bottom='auto';
-  pop.style.width='';
-  pop.style.left=left+'px';
-  pop.style.top=top+'px';
-}
-function togglePalette(open){
-  var next=typeof open==='boolean'?open:!paletteDrawer.classList.contains('open');
-  paletteDrawer.classList.toggle('open', next);
-  if(next) positionPalette();
-}
-function syncPresetBtns(){
-  $('presetRow').querySelectorAll('button').forEach(function(b){
-    b.classList.toggle('on', +b.dataset.size===W && W===H);
-  });
-}
-
-/* SECTION: render-all */
-function renderAll(){
-  var c=cellPx();
-  stage.style.width=W*c+'px'; stage.style.height=H*c+'px';
-  drawRef(); drawGrid(); drawRulers(); renderStats();
-  $('zoomLabel').textContent=Math.round(zoom*100)+'%';
-}
-function zoomTo(z,keepCenter){
-  var old=zoom;
-  z=Math.min(LEVELS[LEVELS.length-1],Math.max(LEVELS[0],z));
-  if(z===old) return;
-  var cx=keepCenter?(viewport.scrollLeft+viewport.clientWidth/2)/(W*BASE_CELL*old):0.5;
-  var cy=keepCenter?(viewport.scrollTop+viewport.clientHeight/2)/(H*BASE_CELL*old):0.5;
-  zoom=z; renderAll();
-  viewport.scrollLeft=cx*W*BASE_CELL*zoom-viewport.clientWidth/2;
-  viewport.scrollTop=cy*H*BASE_CELL*zoom-viewport.clientHeight/2;
-}
-function zoomStep(dir){
-  var i=0;
-  for(var k=0;k<LEVELS.length;k++){ if(Math.abs(LEVELS[k]-zoom)<0.001){ i=k; break; } if(LEVELS[k]<zoom) i=k; }
-  var ni=Math.min(LEVELS.length-1,Math.max(0,i+dir));
-  zoomTo(LEVELS[ni],true);
-}
-function zoomFit(){
-  var vw=viewport.clientWidth-56, vh=viewport.clientHeight-56;
-  var z=Math.min(vw/(W*BASE_CELL),vh/(H*BASE_CELL));
-  var best=LEVELS[0];
-  for(var k=0;k<LEVELS.length;k++){ if(LEVELS[k]<=z+0.001) best=LEVELS[k]; }
-  zoomTo(best,false);
-  viewport.scrollLeft=0; viewport.scrollTop=0;
-}
-
-/* SECTION: drawing-tools */
-function cellFromEvent(e){
-  var rect=gridCanvas.getBoundingClientRect();
-  var x=Math.floor((e.clientX-rect.left)/cellPx());
-  var y=Math.floor((e.clientY-rect.top)/cellPx());
-  if(x<0||y<0||x>=W||y>=H) return null;
-  return y*W+x;
-}
-function paintLine(a,b,val){
-  var x0=a%W, y0=Math.floor(a/W), x1=b%W, y1=Math.floor(b/W);
-  var dx=Math.abs(x1-x0), dy=Math.abs(y1-y0), sx=x0<x1?1:-1, sy=y0<y1?1:-1, err=dx-dy, e2;
-  while(true){
-    grid[y0*W+x0]=val;
-    if(x0===x1&&y0===y1) break;
-    e2=2*err;
-    if(e2>-dy){ err-=dy; x0+=sx; }
-    if(e2<dx){ err+=dx; y0+=sy; }
-  }
-}
-function setTool(t){
-  tool=t;
-  $('toolRow').querySelectorAll('button').forEach(function(b){
-    b.classList.toggle('on',b.dataset.tool===t);
-  });
-  document.querySelectorAll('.mobile-tool').forEach(function(b){
-    b.classList.toggle('on',b.dataset.tool===t);
-  });
-  gridCanvas.style.cursor = t==='picker'?'copy':(t==='swap'?'pointer':'crosshair');
-}
-gridCanvas.addEventListener('pointerdown',function(e){
-  if(e.button!==0) return;
-  var idx=cellFromEvent(e); if(idx===null) return;
-  e.preventDefault();
-  gridCanvas.setPointerCapture(e.pointerId);
-  if(tool==='picker'){
-    var v=grid[idx];
-    if(v>=0){ current=v; buildPalette(); renderCur(); toast('已吸取色号 '+PALETTE[v].c); setTool('brush'); }
-    else toast('该位置为空，无颜色可吸取');
-    return;
-  }
-  if(tool==='swap'){
-    var old=grid[idx];
-    if(old<0){ toast('该位置为空，请点击有颜色的格子'); return; }
-    if(old===current){ toast('目标颜色与当前颜色相同'); return; }
-    pushUndo();
-    var n=0;
-    for(var i=0;i<grid.length;i++){ if(grid[i]===old){ grid[i]=current; n++; } }
-    drawGrid(); renderStats();
-    toast('已将 '+n+' 颗 '+PALETTE[old].c+' 替换为 '+PALETTE[current].c);
-    return;
-  }
-  drawing=true; lastCell=idx; pushUndo();
-  paintLine(idx,idx,tool==='eraser'?-1:current);
-  drawGrid(); renderStats();
-});
-gridCanvas.addEventListener('pointermove',function(e){
-  if(!drawing) return;
-  var idx=cellFromEvent(e); if(idx===null||idx===lastCell) return;
-  paintLine(lastCell,idx,tool==='eraser'?-1:current);
-  lastCell=idx;
-  drawGrid(); renderStats();
-});
-['pointerup','pointercancel'].forEach(function(ev){
-  gridCanvas.addEventListener(ev,function(){ drawing=false; lastCell=null; });
-});
-
-/* SECTION: pan-zoom */
-viewport.addEventListener('pointerdown',function(e){
-  var onEmpty=(e.target===viewport||e.target===stageWrap);
-  var compact=isCompactLayout();
-  if(e.button===1||(e.button===0&&onEmpty)||(compact&&e.button===0&&!drawing&&tool!=='picker'&&tool!=='swap'&&e.target!==gridCanvas)){
-    if(compact && e.target===gridCanvas) return;
-    panning=true;
-    viewport.setPointerCapture(e.pointerId);
-    viewport._sx=e.clientX; viewport._sy=e.clientY;
-    viewport._sl=viewport.scrollLeft; viewport._st=viewport.scrollTop;
-    viewport.style.cursor='grabbing';
-    e.preventDefault();
-  }
-});
-viewport.addEventListener('pointermove',function(e){
-  if(!panning) return;
-  viewport.scrollLeft=viewport._sl-(e.clientX-viewport._sx);
-  viewport.scrollTop=viewport._st-(e.clientY-viewport._sy);
-});
-['pointerup','pointercancel'].forEach(function(ev){
-  viewport.addEventListener(ev,function(){ panning=false; viewport.style.cursor=''; });
-});
-viewport.addEventListener('wheel',function(e){
-  e.preventDefault();
-  zoomStep(e.deltaY<0?1:-1);
-},{passive:false});
-$('zoomIn').addEventListener('click',function(){ zoomStep(1); });
-$('zoomOut').addEventListener('click',function(){ zoomStep(-1); });
-$('zoomFit').addEventListener('click',zoomFit);
-$('zoom100').addEventListener('click',function(){ zoomTo(1,true); });
-
-/* SECTION: size-controls */
-function applySize(newW,newH,fromPreset){
-  newW=Math.round(newW); newH=Math.round(newH);
-  var max=fromPreset?104:100;
-  if(!(newW>=4&&newW<=max&&newH>=4&&newH<=max)){
-    toast('画布尺寸需保持在 4~100 格之间');
-    return;
-  }
-  pushUndo();
-  W=newW; H=newH; grid=new Int16Array(W*H).fill(-1);
-  $('sizeW').value=W; $('sizeH').value=H;
-  syncPresetBtns();
-  renderAll();
-  viewport.scrollLeft=0; viewport.scrollTop=0;
-  toast('已生成 '+W+'×'+H+' 空白图纸（撤销可恢复）');
-}
-$('applySize').addEventListener('click',function(){
-  applySize(+$('sizeW').value,+$('sizeH').value,false);
-});
-$('presetRow').querySelectorAll('button').forEach(function(b){
-  b.addEventListener('click',function(){
-    var s=+b.dataset.size;
-    $('sizeW').value=s; $('sizeH').value=s;
-    applySize(s,s,true);
+document.querySelectorAll('.postcard img').forEach(function(img){
+  img.addEventListener('error', function(){
+    img.closest('.postcard').classList.add('img-broken');
   });
 });
-
-/* SECTION: view-toggles */
-$('modeSeg').querySelectorAll('button').forEach(function(b){
-  b.addEventListener('click',function(){
-    viewMode=b.dataset.mode;
-    $('modeSeg').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on',x===b); });
-    drawGrid();
+var cards = Array.prototype.slice.call(document.querySelectorAll('.postcard'));
+var slots = [
+  {left:'7%',  top:'9%',  r:-2},
+  {left:'56%', top:'6%',  r:1},
+  {left:'9%',  top:'52%', r:2},
+  {left:'55%', top:'48%', r:-1}
+];
+function layout(order){
+  cards.forEach(function(card, i){
+    var s = slots[order[i]];
+    card.style.left = s.left;
+    card.style.top = s.top;
+    card.style.transform = 'rotate(' + s.r + 'deg)';
   });
-});
-function bindPaletteToggle(btn){
-  if(!btn) return;
-  btn.addEventListener('click',function(e){
-    e.stopPropagation();
-    togglePalette(!paletteDrawer.classList.contains('open'));
-  });
 }
-bindPaletteToggle($('openPaletteBtn'));
-bindPaletteToggle($('mobileOpenPaletteBtn'));
-document.addEventListener('click',function(e){
-  if(!paletteDrawer.classList.contains('open')) return;
-  if(paletteDrawer.contains(e.target)) return;
-  if(e.target.closest('#openPaletteBtn')||e.target.closest('#mobileOpenPaletteBtn')) return;
-  togglePalette(false);
-});
-window.addEventListener('resize',function(){
-  if(paletteDrawer.classList.contains('open')) positionPalette();
-  drawRulers();
-});
-document.addEventListener('touchmove',function(e){
-  if(!isCompactLayout()) return;
-  if(e.target.closest('#leftPanel')||e.target.closest('#paletteDrawer')||e.target.closest('#viewport')) return;
-  e.preventDefault();
-},{passive:false});
-$('tgGrid').addEventListener('change',function(){ showGrid=this.checked; drawGrid(); });
-$('tgRuler').addEventListener('change',function(){ showRuler=this.checked; drawRulers(); });
-$('tgCodes').addEventListener('change',function(){ showCodes=this.checked; drawGrid(); });
-$('palStd').addEventListener('click',function(){
-  fullPalette=false; $('palStd').classList.add('on'); $('palFull').classList.remove('on'); buildPalette();
-});
-$('palFull').addEventListener('click',function(){
-  fullPalette=true; $('palFull').classList.add('on'); $('palStd').classList.remove('on'); buildPalette();
-});
-$('toolRow').querySelectorAll('button').forEach(function(b){
-  b.addEventListener('click',function(){ if(b.dataset.tool) setTool(b.dataset.tool); });
-});
-document.querySelectorAll('.mobile-tool').forEach(function(b){
-  b.addEventListener('click',function(){ setTool(b.dataset.tool); });
-});
-$('undoBtn').addEventListener('click',undo);
-$('redoBtn').addEventListener('click',redo);
-$('mobileUndoBtn').addEventListener('click',undo);
-$('mobileRedoBtn').addEventListener('click',redo);
-$('mobileZoomOutBtn').addEventListener('click',function(){ zoomStep(-1); });
-$('mobileZoomInBtn').addEventListener('click',function(){ zoomStep(1); });
-document.addEventListener('keydown',function(e){
-  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'){ e.preventDefault(); undo(); }
-  else if((e.ctrlKey||e.metaKey)&&(e.key.toLowerCase()==='y'||(e.shiftKey&&e.key.toLowerCase()==='z'))){ e.preventDefault(); redo(); }
-});
-
-/* SECTION: transforms */
-$('flipH').addEventListener('click',function(){
-  pushUndo();
-  var out=new Int16Array(W*H);
-  for(var y=0;y<H;y++)for(var x=0;x<W;x++) out[y*W+(W-1-x)]=grid[y*W+x];
-  grid=out; drawGrid(); renderStats(); toast('已水平镜像');
-});
-$('flipV').addEventListener('click',function(){
-  pushUndo();
-  var out=new Int16Array(W*H);
-  for(var y=0;y<H;y++)for(var x=0;x<W;x++) out[(H-1-y)*W+x]=grid[y*W+x];
-  grid=out; drawGrid(); renderStats(); toast('已垂直镜像');
-});
-$('rot90').addEventListener('click',function(){
-  pushUndo();
-  var out=new Int16Array(W*H);
-  for(var y=0;y<H;y++)for(var x=0;x<W;x++) out[x*H+(H-1-y)]=grid[y*W+x];
-  var t=W; W=H; H=t; grid=out;
-  $('sizeW').value=W; $('sizeH').value=H; syncPresetBtns();
-  renderAll(); toast('已旋转 90°（宽高互换）');
-});
-
-/* SECTION: ref-image */
-$('refUploadBtn').addEventListener('click',function(){ $('refFile').click(); });
-$('refFile').addEventListener('change',function(){
-  var f=this.files[0]; if(!f) return;
-  var img=new Image();
-  img.onload=function(){
-    refImg=img; $('refName').textContent='底图：'+f.name; drawRef();
-    toast('底图已加载，可调整透明度对照绘制');
-  };
-  img.onerror=function(){ toast('图片读取失败，请更换图片'); };
-  img.src=URL.createObjectURL(f);
-  this.value='';
-});
-$('refClearBtn').addEventListener('click',function(){
-  refImg=null; $('refName').textContent='未上传底图'; drawRef();
-});
-$('refOpacity').addEventListener('input',function(){
-  refOpacity=this.value/100; $('refOpVal').textContent=this.value+'%'; drawRef();
-});
-
-/* SECTION: image-convert */
-$('maxColors').addEventListener('input',function(){ $('maxColorsVal').textContent=this.value; });
-$('convertBtn').addEventListener('click',function(){ $('convertFile').click(); });
-function nearestIdx(r,g,b,pool){
-  var best=pool[0],bd=Infinity;
-  for(var k=0;k<pool.length;k++){
-    var rgb=hexRgb(PALETTE[pool[k]].h);
-    var d=(rgb[0]-r)*(rgb[0]-r)+(rgb[1]-g)*(rgb[1]-g)+(rgb[2]-b)*(rgb[2]-b);
-    if(d<bd){ bd=d; best=pool[k]; }
-  }
-  return best;
+layout([0,1,2,3]);
+var landing = document.getElementById('landing');
+var navigating = false;
+function enterGenerator(){
+  if (navigating) return;
+  navigating = true;
+  landing.classList.add('leave');
+  setTimeout(function(){ window.location.href = 'editor.html'; }, 500);
 }
-$('convertFile').addEventListener('change',function(){
-  var f=this.files[0]; var input=this; if(!f) return;
-  var img=new Image();
-  img.onload=function(){
-    try{ convertImage(img); toast('转换完成，共用了 '+computeCounts().size+' 种颜色'); }
-    catch(err){ toast('转换失败，请更换图片'); }
-    input.value='';
-  };
-  img.onerror=function(){ toast('图片读取失败'); input.value=''; };
-  img.src=URL.createObjectURL(f);
-});
-function convertImage(img){
-  var off=document.createElement('canvas'); off.width=W; off.height=H;
-  var oc=off.getContext('2d');
-  var s=Math.max(W/img.width,H/img.height);
-  var sw=W/s, sh=H/s, sx=(img.width-sw)/2, sy=(img.height-sh)/2;
-  oc.drawImage(img,sx,sy,sw,sh,0,0,W,H);
-  var data=oc.getImageData(0,0,W,H).data;
-  var allIdx=[]; for(var k=0;k<PALETTE.length;k++) allIdx.push(k);
-  var newGrid=new Int16Array(W*H).fill(-1);
-  var counts=new Map();
-  for(var i=0;i<W*H;i++){
-    var a=data[i*4+3];
-    if(a<120){ continue; }
-    var r=data[i*4],g=data[i*4+1],b=data[i*4+2];
-    var v=nearestIdx(r,g,b,allIdx);
-    newGrid[i]=v;
-    counts.set(v,(counts.get(v)||0)+1);
-  }
-  /* 避免大面积识别为白色：最高频色若接近白色且占比高，视为背景留空 */
-  var maxV=-1,maxN=0,filled=0;
-  counts.forEach(function(n,v){ filled+=n; if(n>maxN){ maxN=n; maxV=v; } });
-  if(maxV>=0&&maxN>=filled*0.2){
-    var wh=hexRgb(PALETTE[maxV].h);
-    if(wh[0]>=235&&wh[1]>=235&&wh[2]>=235){
-      for(var j=0;j<newGrid.length;j++){ if(newGrid[j]===maxV) newGrid[j]=-1; }
-      counts.delete(maxV);
-    }
-  }
-  /* 限制最大用色数：保留高频色，其余就近合并 */
-  var maxN2=+$('maxColors').value;
-  var kept=Array.from(counts.entries()).sort(function(a,b){ return b[1]-a[1]; }).map(function(e){ return e[0]; });
-  if(kept.length>maxN2){
-    var keepSet=kept.slice(0,maxN2);
-    for(var m=0;m<newGrid.length;m++){
-      var cv=newGrid[m];
-      if(cv>=0&&keepSet.indexOf(cv)===-1){ newGrid[m]=nearestIdx(hexRgb(PALETTE[cv].h)[0],hexRgb(PALETTE[cv].h)[1],hexRgb(PALETTE[cv].h)[2],keepSet); }
-    }
-  }
-  pushUndo();
-  grid=newGrid; drawGrid(); renderStats();
-}
-
-/* SECTION: export */
-function download(blob,name){
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download=name;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(function(){ URL.revokeObjectURL(a.href); },3000);
-}
-$('exportPng').addEventListener('click',function(){
-  var c=exportCellSize(), w=W*c, h=H*c, i,v,x,y,hex;
-  var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
-  var ctx=cv.getContext('2d');
-  if(!ctx){ toast('当前浏览器无法导出图纸'); return; }
-  ctx.imageSmoothingEnabled=false;
-  ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,w,h);
-  if(viewMode==='block'){
-    for(i=0;i<grid.length;i++){
-      v=grid[i]; if(v<0) continue;
-      ctx.fillStyle=PALETTE[v].h;
-      ctx.fillRect((i%W)*c,Math.floor(i/W)*c,c,c);
-    }
-  }else{
-    for(i=0;i<grid.length;i++){
-      v=grid[i]; if(v<0) continue;
-      drawBead(ctx,(i%W)*c+c/2,Math.floor(i/W)*c+c/2,c*0.44,PALETTE[v].h);
-    }
-  }
-  if(showGrid){
-    ctx.lineWidth=Math.max(1, c/24); ctx.strokeStyle='rgba(15,65,74,.22)';
-    ctx.beginPath();
-    for(i=1;i<W;i++){ if(i%5===0) continue; x=i*c; ctx.moveTo(x,0); ctx.lineTo(x,h); }
-    for(i=1;i<H;i++){ if(i%5===0) continue; y=i*c; ctx.moveTo(0,y); ctx.lineTo(w,y); }
-    ctx.stroke();
-    ctx.lineWidth=Math.max(2, c/16); ctx.strokeStyle='rgba(15,65,74,.5)';
-    ctx.beginPath();
-    for(i=5;i<W;i+=5){ x=i*c; ctx.moveTo(x,0); ctx.lineTo(x,h); }
-    for(i=5;i<H;i+=5){ y=i*c; ctx.moveTo(0,y); ctx.lineTo(w,y); }
-    ctx.stroke();
-    ctx.lineWidth=Math.max(3, c/12); ctx.strokeStyle='rgba(15,65,74,.6)'; ctx.strokeRect(ctx.lineWidth/2,ctx.lineWidth/2,w-ctx.lineWidth,h-ctx.lineWidth);
-  }
-  cv.toBlob(function(blob){
-    if(!blob){ toast('导出失败，请缩小画布后再试'); return; }
-    download(blob,'拼豆图纸_'+W+'x'+H+'_MARD.png');
-    toast('图纸 PNG 已导出');
-  },'image/png');
-});
-$('exportTxt').addEventListener('click',function(){
-  var map=computeCounts();
-  if(!map.size){ toast('画布暂无内容，无法导出清单'); return; }
-  var arr=Array.from(map.entries()).sort(function(a,b){ return b[1]-a[1]; });
-  var total=0; arr.forEach(function(e){ total+=e[1]; });
-  var lines=[];
-  lines.push('拼豆用料清单（MARD 色号）');
-  lines.push('画布尺寸：'+W+' × '+H+' 格');
-  lines.push('用色种类：'+arr.length+' 种 · 豆子总数：'+total+' 颗');
-  lines.push('--------------------------------');
-  lines.push('色号\t颜色HEX\t数量(颗)');
-  arr.forEach(function(e){
-    lines.push(PALETTE[e[0]].c+'\t'+PALETTE[e[0]].h+'\t'+e[1]);
-  });
-  download(new Blob([lines.join('\r\n')],{type:'text/plain;charset=utf-8'}),'拼豆用料清单_'+W+'x'+H+'.txt');
-  toast('用料清单已导出');
-});
-
-/* SECTION: init */
-buildPalette(); renderCur(); setTool('brush'); updateHistoryBtns(); syncPresetBtns(); togglePalette(false);
-renderAll();
-window.addEventListener('resize',function(){ drawRulers(); });
-})();
+document.getElementById('enterHint').addEventListener('click', enterGenerator);
+var touchStartX = 0, touchStartY = 0, touchActive = false;
+landing.addEventListener('touchstart', function(e){
+  touchActive = true;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+}, {passive:true});
+landing.addEventListener('touchend', function(e){
+  if (!touchActive) return;
+  touchActive = false;
+  var dx = e.changedTouches[0].clientX - touchStartX;
+  var dy = e.changedTouches[0].clientY - touchStartY;
+  if (dy < -60 || dx < -60) enterGenerator();
+}, {passive:true});
+var wheelLock = false;
+landing.addEventListener('wheel', function(e){
+  if (wheelLock) return;
+  if (e.deltaY > 30){ wheelLock = true; enterGenerator(); }
+}, {passive:true});
 </script>
 </body>
 </html>
-
