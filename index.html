@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>拼豆图纸生成编辑器</title>
+<title>nalie's拼豆图纸生成器</title>
 <!-- SECTION: styles -->
 <style>
 :root{
@@ -199,8 +199,8 @@ input[type=range]{accent-color:var(--wine);width:100%}
 <!-- SECTION: header -->
 <header>
   <span class="logo"></span>
-  <h1>拼豆图纸生成编辑器</h1>
-  <span class="sub">MARD 色号 · 离线单文件工具</span>
+  <h1>nalie's图纸工坊</h1>
+
 </header>
 
 <div class="app">
@@ -291,6 +291,7 @@ input[type=range]{accent-color:var(--wine);width:100%}
         <button id="exportPng" data-primary-action>导出图纸 PNG</button>
         <button id="exportTxt">导出用料清单</button>
       </div>
+      <div class="note">导出 PNG 会在每个有豆子的格子上标注 MARD 色号，并按高分辨率输出，格子再多放大后也能看清。</div>
     </div>
   </aside>
 
@@ -401,6 +402,34 @@ function textColor(hex){
   return (rgb[0]*299+rgb[1]*587+rgb[2]*114)/1000>=150 ? '#0F414A' : '#F5EFE6';
 }
 function cellPx(){ return BASE_CELL*zoom; }
+function codeFont(size){
+  return '700 '+size+'px "Segoe UI","PingFang SC","Microsoft YaHei",sans-serif';
+}
+function drawCodeLabel(ctx, code, cx, cy, cell, hex){
+  var maxW=cell*0.88;
+  var size=Math.max(10, Math.floor(cell*(String(code).length>3?0.32:0.4)));
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.font=codeFont(size);
+  while(size>10 && ctx.measureText(code).width>maxW){
+    size--;
+    ctx.font=codeFont(size);
+  }
+  var fill=textColor(hex);
+  ctx.lineJoin='round';
+  ctx.miterLimit=2;
+  ctx.lineWidth=Math.max(2, size*0.16);
+  ctx.strokeStyle=fill==='#0F414A'?'rgba(255,255,255,.86)':'rgba(12,20,24,.55)';
+  ctx.strokeText(code, cx, cy);
+  ctx.fillStyle=fill;
+  ctx.fillText(code, cx, cy);
+}
+function exportCellSize(){
+  var preferred=96;
+  var maxSide=12288;
+  var c=Math.min(preferred, Math.floor(maxSide/Math.max(W,H,1)));
+  return Math.max(48, c);
+}
 
 /* SECTION: history */
 function snapshot(){ return {W:W,H:H,arr:grid.slice()}; }
@@ -495,13 +524,10 @@ function drawGrid(){
     gctx.strokeRect(1,1,w-2,h-2);
   }
   if(showCodes && c>=11){
-    gctx.font='700 '+Math.max(8,Math.floor(c*0.34))+'px "PingFang SC","Microsoft YaHei",sans-serif';
-    gctx.textAlign='center'; gctx.textBaseline='middle';
     for(i=0;i<grid.length;i++){
       v=grid[i]; if(v<0) continue;
       hex=PALETTE[v].h;
-      gctx.fillStyle=textColor(hex);
-      gctx.fillText(PALETTE[v].c,(i%W)*c+c/2,Math.floor(i/W)*c+c/2+0.5);
+      drawCodeLabel(gctx, PALETTE[v].c, (i%W)*c+c/2, Math.floor(i/W)*c+c/2, c, hex);
     }
   }
 }
@@ -910,9 +936,11 @@ function download(blob,name){
   setTimeout(function(){ URL.revokeObjectURL(a.href); },3000);
 }
 $('exportPng').addEventListener('click',function(){
-  var c=16, w=W*c, h=H*c, i,v,x,y;
+  var c=exportCellSize(), w=W*c, h=H*c, i,v,x,y,hex;
   var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
   var ctx=cv.getContext('2d');
+  if(!ctx){ toast('当前浏览器无法导出图纸'); return; }
+  ctx.imageSmoothingEnabled=false;
   ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,w,h);
   if(viewMode==='block'){
     for(i=0;i<grid.length;i++){
@@ -927,27 +955,28 @@ $('exportPng').addEventListener('click',function(){
     }
   }
   if(showGrid){
-    ctx.lineWidth=1; ctx.strokeStyle='rgba(15,65,74,.22)';
+    ctx.lineWidth=Math.max(1, c/24); ctx.strokeStyle='rgba(15,65,74,.22)';
     ctx.beginPath();
     for(i=1;i<W;i++){ if(i%5===0) continue; x=i*c; ctx.moveTo(x,0); ctx.lineTo(x,h); }
     for(i=1;i<H;i++){ if(i%5===0) continue; y=i*c; ctx.moveTo(0,y); ctx.lineTo(w,y); }
     ctx.stroke();
-    ctx.lineWidth=2; ctx.strokeStyle='rgba(15,65,74,.5)';
+    ctx.lineWidth=Math.max(2, c/16); ctx.strokeStyle='rgba(15,65,74,.5)';
     ctx.beginPath();
     for(i=5;i<W;i+=5){ x=i*c; ctx.moveTo(x,0); ctx.lineTo(x,h); }
     for(i=5;i<H;i+=5){ y=i*c; ctx.moveTo(0,y); ctx.lineTo(w,y); }
     ctx.stroke();
-    ctx.lineWidth=3; ctx.strokeStyle='rgba(15,65,74,.6)'; ctx.strokeRect(1.5,1.5,w-3,h-3);
+    ctx.lineWidth=Math.max(3, c/12); ctx.strokeStyle='rgba(15,65,74,.6)'; ctx.strokeRect(ctx.lineWidth/2,ctx.lineWidth/2,w-ctx.lineWidth,h-ctx.lineWidth);
   }
-  if(showCodes){
-    ctx.font='700 6px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    for(i=0;i<grid.length;i++){
-      v=grid[i]; if(v<0) continue;
-      ctx.fillStyle=textColor(PALETTE[v].h);
-      ctx.fillText(PALETTE[v].c,(i%W)*c+c/2,Math.floor(i/W)*c+c/2);
-    }
+  for(i=0;i<grid.length;i++){
+    v=grid[i]; if(v<0) continue;
+    hex=PALETTE[v].h;
+    drawCodeLabel(ctx, PALETTE[v].c, (i%W)*c+c/2, Math.floor(i/W)*c+c/2, c, hex);
   }
-  cv.toBlob(function(blob){ download(blob,'拼豆图纸_'+W+'x'+H+'_MARD.png'); toast('图纸 PNG 已导出'); },'image/png');
+  cv.toBlob(function(blob){
+    if(!blob){ toast('导出失败，请缩小画布后再试'); return; }
+    download(blob,'拼豆图纸_'+W+'x'+H+'_MARD.png');
+    toast('图纸 PNG 已导出（每格已标注色号）');
+  },'image/png');
 });
 $('exportTxt').addEventListener('click',function(){
   var map=computeCounts();
