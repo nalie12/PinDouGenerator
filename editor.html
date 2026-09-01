@@ -1094,7 +1094,7 @@ function download(blob,name){
 $('exportPng').addEventListener('click',function(){
   var c=exportCellSize(), w=W*c, h=H*c, i,v,x,y,hex;
   var data=usageList();
-  var pad = 60, chip = 120, gap = 70, lineH = 130, font = 110;
+  var pad = 42, chip = 40, gap = 30, lineH = 50, font = 36;//边距，色块，间距，行高，字号
   var tmp=document.createElement('canvas').getContext('2d');
   tmp.font='700 '+font+'px "Segoe UI","Microsoft YaHei",sans-serif';
   var rows=[{w:tmp.measureText('用料统计：').width+8, items:[]}];
@@ -1119,17 +1119,34 @@ $('exportPng').addEventListener('click',function(){
   if(!ctx){ toast('当前浏览器无法导出图纸'); return; }
   ctx.imageSmoothingEnabled=false;
   ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,w,h+statH);
+  //色块图纸
   if(viewMode==='block'){
-    for(i=0;i<grid.length;i++){
-      v=grid[i]; if(v<0) continue;
-      ctx.fillStyle=PALETTE[v].h;
-      ctx.fillRect((i%W)*c,Math.floor(i/W)*c,c,c);
-    }
-  }else{
-    for(i=0;i<grid.length;i++){
-      v=grid[i]; if(v<0) continue;
-      drawBead(ctx,(i%W)*c+c/2,Math.floor(i/W)*c+c/2,c*0.44,PALETTE[v].h);
-    }
+      for (i = 0; i < grid.length; i++) {
+          v = grid[i];
+          if (v < 0) continue;
+          var x = (i % W) * c;
+          var y = Math.floor(i / W) * c;
+          ctx.fillStyle = PALETTE[v].h;
+          ctx.fillRect(x, y, c, c);
+
+          if (c >= 11) {
+              drawCodeLabel(ctx, PALETTE[v].c, x + c/2, y + c/2, c, PALETTE[v].h);
+          }
+      }
+  }
+  //仿真圆豆模式
+  else{
+      for (i = 0; i < grid.length; i++) {
+          v = grid[i];
+          if (v < 0) continue;
+          var cx = (i % W) * c + c / 2;
+          var cy = Math.floor(i / W) * c + c / 2;
+          drawBead(ctx, cx, cy, c * 0.44, PALETTE[v].h);
+
+          if (c >= 11) {
+              drawCodeLabel(ctx, PALETTE[v].c, cx, cy, c, PALETTE[v].h);
+          }
+      }
   }
   if(showGrid){
     ctx.lineWidth=Math.max(1, c/24); ctx.strokeStyle='rgba(0,0,0,.18)';
@@ -1155,7 +1172,10 @@ $('exportPng').addEventListener('click',function(){
     var yy=h+pad+lineH/2;
     rows.forEach(function(row,ri){
       var xx=pad;
-      if(ri===0){ ctx.font='700 '+font+'px "Segoe UI","Microsoft YaHei",sans-serif'; ctx.fillStyle='#1a1a2e'; ctx.fillText('用料统计：', xx, yy); xx+=tmp.measureText('用料统计：').width+8; }
+      if(ri===0){ ctx.font='700 '+font+'px "Segoe UI","Microsoft YaHei",sans-serif';
+          ctx.fillStyle='#1a1a2e';
+          ctx.fillText('用料统计：', xx, yy);
+          xx+=tmp.measureText('用料统计：').width+8; }
       row.items.forEach(function(it){
         ctx.fillStyle=it.item.h; ctx.fillRect(xx, yy-chip/2, chip, chip);
         ctx.strokeStyle='rgba(26,26,46,.28)'; ctx.strokeRect(xx+0.5, yy-chip/2+0.5, chip-1, chip-1);
@@ -1168,8 +1188,9 @@ $('exportPng').addEventListener('click',function(){
         xx+=ctx.measureText('×'+it.n).width+gap;
       });
       if(row.sum){
-        ctx.fillStyle='#1a1a2e'; ctx.font='700 '+font+'px "Segoe UI","Microsoft YaHei",sans-serif';
-        ctx.fillText(row.sum, xx, yy);
+          ctx.fillStyle = '#1a1a2e';
+          ctx.font = '700 ' + (font * 1.6) + 'px "Segoe UI","Microsoft YaHei",sans-serif';
+          ctx.fillText(row.sum, xx, yy);
       }
       yy+=lineH+8;
     });
